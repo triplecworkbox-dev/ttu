@@ -1,4 +1,410 @@
-<form id="calculatorForm">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wine Import Calculator & Invoice Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab-button {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button:hover {
+            color: #667eea;
+        }
+        
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        select {
+            background: white;
+            cursor: pointer;
+        }
+        
+        textarea {
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .exchange-rate-info {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+        }
+        
+        .results {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: white;
+        }
+        
+        .results h2 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        
+        .result-row.total {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .result-label {
+            opacity: 0.9;
+        }
+        
+        .result-value {
+            font-weight: 600;
+        }
+        
+        .line-items {
+            margin-bottom: 20px;
+        }
+        
+        .line-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .line-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .line-item-title {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .remove-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .remove-btn:hover {
+            background: #ff5252;
+        }
+        
+        .line-item-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .add-line-btn, .generate-btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .generate-btn {
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .add-line-btn:hover {
+            background: #5568d3;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .info-section-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .invoice-preview {
+            display: none;
+            background: white;
+            padding: 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .invoice-preview.active {
+            display: block;
+        }
+        
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+        
+        .invoice-header h2 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+        
+        .invoice-parties {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .party-box h3 {
+            font-size: 14px;
+            color: #667eea;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        
+        .party-box p {
+            margin: 0;
+            line-height: 1.6;
+            color: #333;
+            white-space: pre-line;
+        }
+        
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .invoice-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .invoice-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .invoice-totals {
+            margin-left: auto;
+            width: 300px;
+            margin-top: 20px;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .total-row.grand-total {
+            font-weight: 700;
+            font-size: 18px;
+            color: #667eea;
+            border-top: 3px solid #667eea;
+            border-bottom: 3px solid #667eea;
+            margin-top: 10px;
+            padding: 12px 0;
+        }
+        
+        .invoice-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .print-btn {
+            background: #667eea;
+            color: white;
+        }
+        
+        .print-btn:hover {
+            background: #5568d3;
+        }
+        
+        .copy-btn {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .copy-btn:hover {
+            background: #e9ecef;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+            }
+            
+            .tabs, .generate-btn, .invoice-actions, #calculatorTab {
+                display: none !important;
+            }
+            
+            .invoice-preview {
+                display: block !important;
+                border: none;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍷 Wine Import Calculator</h1>
+        <p class="subtitle">Calculate landed costs and generate commercial invoices</p>
+        
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('calculator')">Calculator</button>
+            <button class="tab-button" onclick="switchTab('invoice')">Generate Invoice</button>
+        </div>
+        
+        <div id="calculatorTab" class="tab-content active">
             <div class="form-group">
                 <label for="invoiceCurrency">Invoice Currency</label>
                 <select id="invoiceCurrency">
@@ -21,17 +427,17 @@
             
             <div class="form-group">
                 <label for="bottleCost">Wine Cost per Bottle</label>
-                <input type="number" id="bottleCost" step="0.01" min="0" value="15.00" required>
+                <input type="number" id="bottleCost" step="0.01" min="0" value="15.00">
             </div>
             
             <div class="form-group">
                 <label for="numBottles">Number of Bottles</label>
-                <input type="number" id="numBottles" step="1" min="1" value="100" required>
+                <input type="number" id="numBottles" step="1" min="1" value="100">
             </div>
             
             <div class="form-group">
                 <label for="shippingCost">Total Shipping Cost</label>
-                <input type="number" id="shippingCost" step="0.01" min="0" value="500.00" required>
+                <input type="number" id="shippingCost" step="0.01" min="0" value="500.00">
             </div>
             
             <div class="form-group">
@@ -46,16 +452,368 @@
             
             <div class="form-group">
                 <label for="dutyRate">Customs Duty Rate (%)</label>
-                <input type="number" id="dutyRate" step="0.01" min="0" max="100" value="10.00" required>
+                <input type="number" id="dutyRate" step="0.01" min="0" max="100" value="10.00">
             </div>
             
             <div class="form-group">
                 <label for="vatRate">VAT/GST Rate (%)</label>
-                <input type="number" id="vatRate" step="0.01" min="0" max="100" value="15.00" required>
+                <input type="number" id="vatRate" step="0.01" min="0" max="100" value="15.00">
             </div>
             
             <div class="form-group">
                 <label for="otherFees">Other Fees (Optional)</label>
                 <input type="number" id="otherFees" step="0.01" min="0" value="0.00">
             </div>
-        </form>
+            
+            <div class="results">
+                <h2>Cost Breakdown</h2>
+                <div class="exchange-rate-info" id="exchangeRateInfo"></div>
+                <div class="result-row">
+                    <span class="result-label">Total Wine Cost:</span>
+                    <span class="result-value" id="totalWineCost">R 0.00</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Shipping Cost:</span>
+                    <span class="result-value" id="displayShipping">R 0.00</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Customs Duty:</span>
+                    <span class="result-value" id="customsDuty">R 0.00</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">VAT/GST:</span>
+                    <span class="result-value" id="vatAmount">R 0.00</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Other Fees:</span>
+                    <span class="result-value" id="displayOtherFees">R 0.00</span>
+                </div>
+                <div class="result-row total">
+                    <span class="result-label">Total Landed Cost:</span>
+                    <span class="result-value" id="totalLandedCost">R 0.00</span>
+                </div>
+                <div class="result-row total">
+                    <span class="result-label">Cost per Bottle:</span>
+                    <span class="result-value" id="costPerBottle">R 0.00</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="invoiceTab" class="tab-content">
+            <div class="form-group">
+                <div class="info-section-title">Supplier Information</div>
+                <textarea id="supplierInfo" placeholder="Company Name&#10;Address Line 1&#10;City, Postal Code&#10;Country&#10;Tax/VAT Number"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <div class="info-section-title">Buyer Information</div>
+                <textarea id="buyerInfo" placeholder="Company Name&#10;Address Line 1&#10;City, Postal Code&#10;Country&#10;Tax/VAT Number"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="invoiceNumber">Invoice Number</label>
+                <input type="text" id="invoiceNumber" placeholder="INV-2026-001">
+            </div>
+            
+            <div class="form-group">
+                <label for="invoiceDate">Invoice Date</label>
+                <input type="date" id="invoiceDate">
+            </div>
+            
+            <div class="form-group">
+                <label for="invoiceCurrencyDoc">Invoice Currency</label>
+                <select id="invoiceCurrencyDoc">
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="NZD">NZD - New Zealand Dollar</option>
+                    <option value="ZAR" selected>ZAR - South African Rand</option>
+                    <option value="GBP">GBP - British Pound</option>
+                </select>
+            </div>
+            
+            <div class="line-items">
+                <div class="info-section-title">Line Items</div>
+                <div id="lineItemsContainer"></div>
+                <button class="add-line-btn" onclick="addLineItem()">+ Add Line Item</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="shippingCostDoc">Shipping Cost</label>
+                <input type="number" id="shippingCostDoc" step="0.01" min="0" value="0.00">
+            </div>
+            
+            <div class="form-group">
+                <label for="paymentTerms">Payment Terms</label>
+                <input type="text" id="paymentTerms" value="Payment due upon receipt">
+            </div>
+            
+            <button class="generate-btn" onclick="generateInvoice()">Generate Invoice</button>
+            
+            <div class="invoice-preview" id="invoicePreview">
+                <div class="invoice-header">
+                    <h2>COMMERCIAL INVOICE</h2>
+                    <div id="invoiceMetadata"></div>
+                </div>
+                
+                <div class="invoice-parties">
+                    <div class="party-box">
+                        <h3>From (Supplier)</h3>
+                        <p id="supplierDisplay"></p>
+                    </div>
+                    <div class="party-box">
+                        <h3>To (Buyer)</h3>
+                        <p id="buyerDisplay"></p>
+                    </div>
+                </div>
+                
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>Item Description</th>
+                            <th>HS Code</th>
+                            <th>Origin</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoiceTableBody"></tbody>
+                </table>
+                
+                <div class="invoice-totals" id="invoiceTotals"></div>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                    <p><strong>Payment Terms:</strong> <span id="paymentTermsDisplay"></span></p>
+                </div>
+                
+                <div class="invoice-actions">
+                    <button class="action-btn print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+                    <button class="action-btn copy-btn" onclick="copyInvoice()">📋 Copy to Clipboard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const exchangeRates = {
+            USD: 1,
+            NZD: 1.72,
+            ZAR: 18.45,
+            GBP: 0.79
+        };
+        
+        const currencySymbols = {
+            USD: '$',
+            NZD: 'NZ$',
+            ZAR: 'R',
+            GBP: '£'
+        };
+        
+        let lineItemCounter = 0;
+        
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+        
+        function addLineItem() {
+            lineItemCounter++;
+            const container = document.getElementById('lineItemsContainer');
+            const lineItem = document.createElement('div');
+            lineItem.className = 'line-item';
+            lineItem.id = 'lineItem' + lineItemCounter;
+            lineItem.innerHTML = `
+                <div class="line-item-header">
+                    <span class="line-item-title">Item ${lineItemCounter}</span>
+                    <button class="remove-btn" onclick="removeLineItem(${lineItemCounter})">Remove</button>
+                </div>
+                <div class="line-item-grid">
+                    <div class="form-group">
+                        <label>Wine Description</label>
+                        <input type="text" id="desc${lineItemCounter}" placeholder="e.g., Cabernet Sauvignon 2020">
+                    </div>
+                    <div class="form-group">
+                        <label>HS Code</label>
+                        <input type="text" id="hs${lineItemCounter}" value="2204.21">
+                    </div>
+                    <div class="form-group">
+                        <label>Country of Origin</label>
+                        <input type="text" id="origin${lineItemCounter}" placeholder="e.g., France">
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity (bottles)</label>
+                        <input type="number" id="qty${lineItemCounter}" step="1" min="1" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Unit Price</label>
+                        <input type="number" id="price${lineItemCounter}" step="0.01" min="0" value="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Total</label>
+                        <input type="text" id="total${lineItemCounter}" readonly style="background: #f0f0f0;">
+                    </div>
+                </div>
+            `;
+            container.appendChild(lineItem);
+            
+            document.getElementById('qty' + lineItemCounter).addEventListener('input', () => updateLineItemTotal(lineItemCounter));
+            document.getElementById('price' + lineItemCounter).addEventListener('input', () => updateLineItemTotal(lineItemCounter));
+        }
+        
+        function updateLineItemTotal(itemId) {
+            const qty = parseFloat(document.getElementById('qty' + itemId).value) || 0;
+            const price = parseFloat(document.getElementById('price' + itemId).value) || 0;
+            document.getElementById('total' + itemId).value = (qty * price).toFixed(2);
+        }
+        
+        function removeLineItem(itemId) {
+            document.getElementById('lineItem' + itemId)?.remove();
+        }
+        
+        function generateInvoice() {
+            const supplierInfo = document.getElementById('supplierInfo').value;
+            const buyerInfo = document.getElementById('buyerInfo').value;
+            const invoiceNumber = document.getElementById('invoiceNumber').value || 'INV-' + Date.now();
+            const invoiceDate = document.getElementById('invoiceDate').value || new Date().toISOString().split('T')[0];
+            const currency = document.getElementById('invoiceCurrencyDoc').value;
+            const shippingCost = parseFloat(document.getElementById('shippingCostDoc').value) || 0;
+            const paymentTerms = document.getElementById('paymentTerms').value;
+            
+            const items = document.getElementById('lineItemsContainer').querySelectorAll('.line-item');
+            const lineItems = [];
+            let subtotal = 0;
+            
+            items.forEach(item => {
+                const id = item.id.replace('lineItem', '');
+                const desc = document.getElementById('desc' + id).value;
+                const hs = document.getElementById('hs' + id).value;
+                const origin = document.getElementById('origin' + id).value;
+                const qty = parseFloat(document.getElementById('qty' + id).value) || 0;
+                const price = parseFloat(document.getElementById('price' + id).value) || 0;
+                const total = qty * price;
+                
+                if (desc && qty > 0) {
+                    lineItems.push({ desc, hs, origin, qty, price, total });
+                    subtotal += total;
+                }
+            });
+            
+            if (lineItems.length === 0) {
+                alert('Please add at least one line item');
+                return;
+            }
+            
+            document.getElementById('invoiceMetadata').innerHTML = `
+                <p><strong>Invoice #:</strong> ${invoiceNumber}</p>
+                <p><strong>Date:</strong> ${invoiceDate}</p>
+            `;
+            
+            document.getElementById('supplierDisplay').textContent = supplierInfo || 'Not provided';
+            document.getElementById('buyerDisplay').textContent = buyerInfo || 'Not provided';
+            
+            const tbody = document.getElementById('invoiceTableBody');
+            tbody.innerHTML = '';
+            lineItems.forEach(item => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${item.desc}</td>
+                    <td>${item.hs}</td>
+                    <td>${item.origin}</td>
+                    <td>${item.qty}</td>
+                    <td>${currencySymbols[currency]} ${item.price.toFixed(2)}</td>
+                    <td>${currencySymbols[currency]} ${item.total.toFixed(2)}</td>
+                `;
+            });
+            
+            const grandTotal = subtotal + shippingCost;
+            document.getElementById('invoiceTotals').innerHTML = `
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span>${currencySymbols[currency]} ${subtotal.toFixed(2)}</span>
+                </div>
+                <div class="total-row">
+                    <span>Shipping:</span>
+                    <span>${currencySymbols[currency]} ${shippingCost.toFixed(2)}</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>TOTAL:</span>
+                    <span>${currencySymbols[currency]} ${grandTotal.toFixed(2)}</span>
+                </div>
+            `;
+            
+            document.getElementById('paymentTermsDisplay').textContent = paymentTerms;
+            document.getElementById('invoicePreview').classList.add('active');
+            document.getElementById('invoicePreview').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function copyInvoice() {
+            const range = document.createRange();
+            range.selectNode(document.getElementById('invoicePreview'));
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            alert('Invoice copied to clipboard!');
+        }
+        
+        function convertCurrency(amount, from, to) {
+            return amount / exchangeRates[from] * exchangeRates[to];
+        }
+        
+        function formatCurrency(amount, currency) {
+            return currencySymbols[currency] + ' ' + amount.toFixed(2);
+        }
+        
+        function calculate() {
+            const invoiceCurrency = document.getElementById('invoiceCurrency').value;
+            const destinationCurrency = document.getElementById('destinationCurrency').value;
+            const shippingCurrency = document.getElementById('shippingCurrency').value;
+            
+            const bottleCost = parseFloat(document.getElementById('bottleCost').value) || 0;
+            const numBottles = parseFloat(document.getElementById('numBottles').value) || 0;
+            const shippingCost = parseFloat(document.getElementById('shippingCost').value) || 0;
+            const dutyRate = parseFloat(document.getElementById('dutyRate').value) || 0;
+            const vatRate = parseFloat(document.getElementById('vatRate').value) || 0;
+            const otherFees = parseFloat(document.getElementById('otherFees').value) || 0;
+            
+            const totalWineCost = convertCurrency(bottleCost * numBottles, invoiceCurrency, destinationCurrency);
+            const shippingConverted = convertCurrency(shippingCost, shippingCurrency, destinationCurrency);
+            const customsDuty = totalWineCost * (dutyRate / 100);
+            const taxableAmount = totalWineCost + shippingConverted + customsDuty;
+            const vatAmount = taxableAmount * (vatRate / 100);
+            const totalLandedCost = totalWineCost + shippingConverted + customsDuty + vatAmount + otherFees;
+            const costPerBottle = numBottles > 0 ? totalLandedCost / numBottles : 0;
+            
+            let exchangeInfo = '';
+            if (invoiceCurrency !== destinationCurrency) {
+                const rate = exchangeRates[destinationCurrency] / exchangeRates[invoiceCurrency];
+                exchangeInfo = `Exchange Rate: 1 ${invoiceCurrency} = ${rate.toFixed(4)} ${destinationCurrency}`;
+            }
+            if (shippingCurrency !== destinationCurrency && shippingCost > 0) {
+                const rate = exchangeRates[destinationCurrency] / exchangeRates[shippingCurrency];
+                if (exchangeInfo) exchangeInfo += ' | ';
+                exchangeInfo += `1 ${shippingCurrency} = ${rate.toFixed(4)} ${destinationCurrency}`;
+            }
+            document.getElementById('exchangeRateInfo').textContent = exchangeInfo || 'No currency conversion needed';
+            
+            document.getElementById('totalWineCost').textContent = formatCurrency(totalWineCost, destinationCurrency);
+            document.getElementById('displayShipping').textContent = formatCurrency(shippingConverted, destinationCurrency);
+            document.getElementById('customsDuty').textContent = formatCurrency(customsDuty, destinationCurrency);
+            document.getElementById('vatAmount').textContent = formatCurrency(vatAmount, destinationCurrency);
+            document.getElementById('displayOtherFees').textContent = formatCurrency(otherFees, destinationCurrency);
+            document.getElementById('totalLandedCost').textContent = formatCurrency(totalLandedCost, destinationCurrency);
+            document.getElementById('costPerBottle').textContent = formatCurrency(costPerBottle, destinationCurrency);
+        }
+        
+        document.querySelectorAll('#calculatorTab input, #calculatorTab select').forEach(input => {
+            input.addEventListener('input', calculate);
+            input.addEventListener('change', calculate);
+        });
+        
+        document.getElementById('invoiceDate').valueAsDate = new Date();
+        addLineItem();
+        calculate();
+    </script>
+</body>
+</html>
