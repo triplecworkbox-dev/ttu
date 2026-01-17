@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wine Import Landed Cost Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        input:invalid {
+            border-color: #ff6b6b;
+        }
+        
+        .results {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: white;
+        }
+        
+        .results h2 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        
+        .result-row.total {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .result-label {
+            opacity: 0.9;
+        }
+        
+        .result-value {
+            font-weight: 600;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍷 Wine Import Calculator</h1>
+        <p class="subtitle">Calculate your total landed cost for wine imports</p>
+        
+        <form id="calculatorForm">
+            <div class="form-group">
+                <label for="bottleCost">Wine Cost per Bottle (Foreign Currency)</label>
+                <input type="number" id="bottleCost" step="0.01" min="0" value="15.00" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="numBottles">Number of Bottles</label>
+                <input type="number" id="numBottles" step="1" min="1" value="100" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="shippingCost">Total Shipping Cost</label>
+                <input type="number" id="shippingCost" step="0.01" min="0" value="500.00" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="dutyRate">Customs Duty Rate (%)</label>
+                <input type="number" id="dutyRate" step="0.01" min="0" max="100" value="10.00" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="vatRate">VAT/GST Rate (%)</label>
+                <input type="number" id="vatRate" step="0.01" min="0" max="100" value="15.00" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="otherFees">Other Fees (Optional)</label>
+                <input type="number" id="otherFees" step="0.01" min="0" value="0.00">
+            </div>
+        </form>
+        
+        <div class="results">
+            <h2>Cost Breakdown</h2>
+            <div class="result-row">
+                <span class="result-label">Total Wine Cost:</span>
+                <span class="result-value" id="totalWineCost">$0.00</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Shipping Cost:</span>
+                <span class="result-value" id="displayShipping">$0.00</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Customs Duty:</span>
+                <span class="result-value" id="customsDuty">$0.00</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">VAT/GST:</span>
+                <span class="result-value" id="vatAmount">$0.00</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Other Fees:</span>
+                <span class="result-value" id="displayOtherFees">$0.00</span>
+            </div>
+            <div class="result-row total">
+                <span class="result-label">Total Landed Cost:</span>
+                <span class="result-value" id="totalLandedCost">$0.00</span>
+            </div>
+            <div class="result-row total">
+                <span class="result-label">Cost per Bottle:</span>
+                <span class="result-value" id="costPerBottle">$0.00</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function calculate() {
+            const bottleCost = parseFloat(document.getElementById('bottleCost').value) || 0;
+            const numBottles = parseFloat(document.getElementById('numBottles').value) || 0;
+            const shippingCost = parseFloat(document.getElementById('shippingCost').value) || 0;
+            const dutyRate = parseFloat(document.getElementById('dutyRate').value) || 0;
+            const vatRate = parseFloat(document.getElementById('vatRate').value) || 0;
+            const otherFees = parseFloat(document.getElementById('otherFees').value) || 0;
+            
+            const totalWineCost = bottleCost * numBottles;
+            const customsDuty = totalWineCost * (dutyRate / 100);
+            const taxableAmount = totalWineCost + shippingCost + customsDuty;
+            const vatAmount = taxableAmount * (vatRate / 100);
+            const totalLandedCost = totalWineCost + shippingCost + customsDuty + vatAmount + otherFees;
+            const costPerBottle = numBottles > 0 ? totalLandedCost / numBottles : 0;
+            
+            document.getElementById('totalWineCost').textContent = '$' + totalWineCost.toFixed(2);
+            document.getElementById('displayShipping').textContent = '$' + shippingCost.toFixed(2);
+            document.getElementById('customsDuty').textContent = '$' + customsDuty.toFixed(2);
+            document.getElementById('vatAmount').textContent = '$' + vatAmount.toFixed(2);
+            document.getElementById('displayOtherFees').textContent = '$' + otherFees.toFixed(2);
+            document.getElementById('totalLandedCost').textContent = '$' + totalLandedCost.toFixed(2);
+            document.getElementById('costPerBottle').textContent = '$' + costPerBottle.toFixed(2);
+        }
+        
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('input', calculate);
+        });
+        
+        calculate();
+    </script>
+</body>
+</html>
